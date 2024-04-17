@@ -6,12 +6,6 @@
     <img width="33%" src="./dbstructure.png"> 
 </p>
 
-## Installation
-
-- Clone This Repository
-- `npm i`
-- `npm run dev`
-
 ## Privileged Detail
 
 Manager :
