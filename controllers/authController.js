@@ -123,7 +123,22 @@ const login = async (req, res, next) => {
   }
 };
 
+const checkUser = async (req, res, next) => {
+  try {
+    res.status(200).json({
+      status: "Success",
+      data: {
+        user: req.user,
+      },
+    });
+  } catch (err) {
+    next(new ApiError(err.message, 400));
+    return;
+  }
+};
+
 module.exports = {
   register,
   login,
+  checkUser,
 };
