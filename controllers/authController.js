@@ -83,6 +83,47 @@ const register = async (req, res, next) => {
   }
 };
 
+const login = async (req, res, next) => {
+  try {
+    const { username, password } = req.body;
+
+    const user = await User.findOne({
+      where: {
+        username,
+      },
+    });
+
+    if (user && bcrypt.compareSync(password, user.password)) {
+      const token = jwt.sign(
+        {
+          id: user.id,
+          username: user.username,
+          name: user.name,
+          role: user.role,
+          storeId: user.storeId,
+        },
+        process.env.JWT_SECRET,
+        {
+          expiresIn: process.env.JWT_EXPIRES,
+        }
+      );
+
+      res.status(200).json({
+        status: "Success",
+        message: "Token successfully created",
+        data: token,
+      });
+    } else {
+      next(new ApiError(" Wrong Email Or Password", 400));
+      return;
+    }
+  } catch (err) {
+    next(new ApiError(err.message, 400));
+    return;
+  }
+};
+
 module.exports = {
   register,
+  login,
 };
