@@ -23,4 +23,6 @@ app.use(router);
 app.use(errorController.onLost);
 app.use(errorController.onError);
 
+console.log("TEST PULL REQUEST")
+
 module.exports = app;
