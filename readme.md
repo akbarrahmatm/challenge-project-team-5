@@ -3,7 +3,7 @@
 ## Database Structure
 
 <p align="center" width="100%">
-    <img width="33%" src="./dbstructure.png"> 
+    <img width="50%" src="./Travel_Updated.png"> 
 </p>
 
 ## Privileged Detail
