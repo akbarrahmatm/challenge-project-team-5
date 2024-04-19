@@ -28,12 +28,21 @@ module.exports = (sequelize, DataTypes) => {
   Tour_Package.init(
     {
       packageName: DataTypes.STRING,
-      description: DataTypes.TEXT,
-      image: DataTypes.TEXT,
+      description: {
+        type: DataTypes.TEXT,
+        defaultValue: 'ini description'
+      },
+      image: {
+        type: DataTypes.TEXT,
+        defaultValue: 'ini image'
+      },
       price: DataTypes.INTEGER,
       destination: DataTypes.STRING,
       duration: DataTypes.INTEGER,
-      storeId: DataTypes.INTEGER,
+      storeId: {
+        type: DataTypes.INTEGER,
+        defaultValue: 1
+      },
     },
     {
       sequelize,
