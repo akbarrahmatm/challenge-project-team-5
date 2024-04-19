@@ -40,8 +40,7 @@ const register = async (req, res, next) => {
     }
 
     // Check password length
-    const passwordLength = password <= 8;
-    if (passwordLength) {
+    if (password.length <= 8) {
       next(new ApiError("Password should be 8 character or more", 400));
       return;
     }
