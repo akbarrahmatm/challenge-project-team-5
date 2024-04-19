@@ -32,3 +32,14 @@ Customer datang ke toko -> kalo belum pernah daftar, maka customer didaftarkan o
 - Booking : Dhoni
 - Store : Lowis
 - Tour_Package : Azka
+
+## Postman Documentation
+
+[Documentation](https://documenter.getpostman.com/view/22728093/2sA3Bn7t9x)
+
+## Feature
+
+- Create Register User (/api/v1/auth/register)
+- Create Auth Login (/api/v1/auth/login)
+- Create Check User (/api/v1/auth/me)
+- Create Middleware authenticate
