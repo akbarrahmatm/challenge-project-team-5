@@ -47,7 +47,7 @@ const findCustomers = async (req, res, next) => {
       },
     });
   } catch (err) {
-    next(new ApiError(err.message, 400));
+    return next(new ApiError(err.message, 400));
   }
 };
 
@@ -73,7 +73,7 @@ const findCustomerById = async (req, res, next) => {
       },
     });
   } catch (err) {
-    next(new ApiError(err.message, 400));
+    return next(new ApiError(err.message, 400));
   }
 };
 
@@ -117,7 +117,7 @@ const updateCustomer = async (req, res, next) => {
       }
     });
   } catch (err) {
-    next(new ApiError(err.message, 400));
+    return next(new ApiError(err.message, 400));
   }
 };
 
@@ -145,7 +145,7 @@ const deleteCustomer = async (req, res, next) => {
       requestAt: req.requestTime,
     });
   } catch (err) {
-    next(new ApiError(err.message, 400));
+    return next(new ApiError(err.message, 400));
   }
 };
 
@@ -162,12 +162,14 @@ const createCustomer = async (req, res, next) => {
 
     res.status(200).json({
       status: "Success",
+      message: "Customer successfully created",
+      requestAt: req.requestTime,
       data: {
         newCustomer,
       },
     });
   } catch (err) {
-    next(new ApiError(err.message, 400));
+    return next(new ApiError(err.message, 400));
   }
 };
 
