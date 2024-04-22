@@ -3,15 +3,47 @@ const ApiError = require("../utils/ApiError")
 
 const findBookings = async (req, res, next) => {
   try {
-    const bookings = await Booking.findAll();
+    const { BookingName, createdBy, manufacture, type, page, limit } = req.query;
+
+    const condition = {};
+
+    if (BookingName) condition.model = { [Op.iLike]: `%${BookingName}%` };
+
+    if (createdBy) condition.createdBy = createdBy;
+
+    if (manufacture) condition.manufacture = { [Op.iLike]: `${manufacture}%` };
+
+    if (type) condition.type = { [Op.iLike]: `%${type}%` };
+
+    const pageNum = parseInt(page) || 1;
+    const pageSize = parseInt(limit) || 10;
+    const offset = (pageNum - 1) * pageSize;
+
+    const totalCount = await Booking.count({ where: condition });
+    const bookings = await Booking.findAll({
+      where: condition,
+      limit: pageSize,
+      offset: offset,
+    });
+
+    const totalPages = Math.ceil(totalCount / pageSize);
+    
     res.status(200).json({
       status: "Success",
+      message: "Booking succesfully retrieved",
+      requestAt: req.requestTime,
       data: {
         bookings,
+        pagination: {
+          totalData: totalCount,
+          totalPages,
+          pageNum,
+          pageSize,
+        },
       },
     });
   } catch (err) {
-    next(new ApiError(err.message, 400));
+    return next(new ApiError(err.message, 400));
   }
 };
 
