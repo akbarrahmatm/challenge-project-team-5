@@ -26,7 +26,7 @@ const findBookingById = async (req, res, next) => {
     res.status(200).json({
       status: "Success",
       data: {
-        bookingss,
+        bookings,
       },
     });
   } catch (err) {
@@ -59,6 +59,19 @@ const createBooking = async (req, res, next) => {
 const updateBooking = async (req, res, next) => {
   const { customerId, packageId, bookingDate, numberOfPeople } = req.body;
   try {
+
+    const car = await Booking.findOne({
+      where: {
+        id,
+      },
+    });
+
+
+    if (!Booking) {
+      return next(new ApiError(`Data with id '${id}' is not found`, 404));
+    }
+
+
     await Booking.update(
       {
         customerId,
@@ -72,6 +85,7 @@ const updateBooking = async (req, res, next) => {
         },
       }
     );
+
 
     res.status(200).json({
       status: "Success",
@@ -91,7 +105,7 @@ const deleteBooking = async (req, res, next) => {
     });
 
     if (!bookings) {
-      next(new ApiError("Booking id tersebut gak ada", 404));
+      next(new ApiError(`Data with id '${id}' is not found`, 404));
     }
 
     await bookings.destroy({
@@ -102,7 +116,7 @@ const deleteBooking = async (req, res, next) => {
 
     res.status(200).json({
       status: "Success",
-      message: "succes delete booking",
+      message: "Succes Delete Booking",
     });
   } catch (err) {
     next(new ApiError(err.message, 400));
