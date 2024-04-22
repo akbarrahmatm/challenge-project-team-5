@@ -92,14 +92,14 @@ const updateBooking = async (req, res, next) => {
   const { customerId, packageId, bookingDate, numberOfPeople } = req.body;
   try {
 
-    const car = await Booking.findOne({
+    const booking = await Booking.findOne({
       where: {
         id,
       },
     });
 
 
-    if (!Booking) {
+    if (!booking) {
       return next(new ApiError(`Data with id '${id}' is not found`, 404));
     }
 
