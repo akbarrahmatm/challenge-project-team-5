@@ -26,7 +26,6 @@ const findTourPackageById = async (req, res, next) => {
           },
         });
       } catch (err) {
-        console.log(err);
         next(new ApiError(err.message, 400));
       }
 };
@@ -54,7 +53,7 @@ const findTourPackages = async (req, res, next) => {
     const tourPackages = await Tour_Package.findAll({
       where: whereCondition,
       order: [["id", "ASC"]],
-      attributes: ['id', 'description', 'image', 'price', 'destination', 'duration', 'storeId'],
+      attributes: ['id', 'packageName', 'description', 'image', 'price', 'destination', 'duration', 'storeId'],
       limit: pageSize,
       offset: offset,
     });
@@ -74,7 +73,6 @@ const findTourPackages = async (req, res, next) => {
       },
     });
   } catch (error) {
-    console.error(error);
     next(new ApiError(error.message, 400));
   }
 };
@@ -98,7 +96,6 @@ const createTourPackage = async (req, res, next) => {
             },
           });
     } catch (error) {
-        console.log(error);
         next(new ApiError(error.message, 400));
     }
 }
@@ -131,7 +128,6 @@ const updateTourPackage = async(req, res, next) => {
        message: "successfully update TOur Package"
       });
 } catch (error) {
-    console.log(error);
     next(new ApiError(error.message, 400));
 }
 }
@@ -156,7 +152,6 @@ const deleteTourPackage = async(req, res, next) => {
       message: "Success delete product",
     });
   } catch (error) {
-    console.log(error);
     next(new ApiError(error.message, 400));
   }
 }
