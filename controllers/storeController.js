@@ -1,4 +1,6 @@
 const { Store } = require("../models");
+const ApiError = require("../utils/ApiError");
+const { Op } = require("sequelize");
 
 const createStore = async (req, res) => {
     // Destructuring object
@@ -11,17 +13,17 @@ const createStore = async (req, res) => {
         });
 
         res.status(200).json({
-            status: "success",
+            status: "Success",
+            message: "Store successfully created",
+            requestAt: req.requestTime,
+
             data: {
                 newStore
             }
         });
     } catch (err) {
-        console.error(err.message);
-        res.status(500).json({
-            status: "error",
-            message: "Failed to create store"
-        });
+        next(new ApiError(err.message, 400));
+        return;
     }
 };
 
@@ -32,44 +34,68 @@ const getStoreById = async (req, res) => {
         const store = await Store.findByPk(storeId);
 
         if (!store) { 
-            return res.status(404).json({
-                status: "error",
-                message: "Store not found"
-            });
+            next(new ApiError("Store not found", 400));
+        return;
         }
 
         res.status(200).json({
-            status: "success",
+            status: "Success",
+            message : `Store with id '${id}' is successfully retrieved`,
+            requestAt : req.requestTime,
+
             data: {
                 store
             }
         });
     } catch (err) {
-        console.error(err.message);
-        res.status(500).json({
-            status: "error",
-            message: "Failed to get store"
-        });
+        next(new ApiError(err.message, 400));
+        return;
     }
 };
 
 
 const getAllStores = async (req, res) => {
     try {
-        const stores = await Store.findAll();
+    const { name, city, page, limit } = req.query;
+
+    const condition = {};
+
+    // Filter by storeName
+    if (name) condition.name= { [Op.iLike]: `%${name}%` };
+
+    // Filter by storeCity
+    if (city) condition.city = { [Op.iLike]: `%${city}%` };
+
+    const pageNum = parseInt(page) || 1;
+    const pageSize = parseInt(limit) || 10;
+    const offset = (pageNum - 1) * pageSize;
+
+    const totalCount = await Store.count({ where: condition });
+        const stores = await Store.findAll({
+            where: condition,
+            limit: pageSize,
+            offset: offset,
+        });
+
+        const totalPages = Math.ceil(totalCount / pageSize);
 
         res.status(200).json({
-            status: "success",
+            status: "Success",
+            message : "Stores succesfully retrieved" ,
+            requestAt : req.requestTime,
             data: {
                 stores
-            }
+            },
+            pagination: {
+        totalData: totalCount,
+        totalPages,
+        pageNum,
+        pageSize,
+        },
         });
     } catch (err) {
-        console.error(err.message);
-        res.status(500).json({
-            status: "error",
-            message: "Failed to get all stores"
-        });
+        next(new ApiError(err.message, 400));
+        return;
     }
 };
 
@@ -81,10 +107,8 @@ const updateStore = async (req, res) => {
         let store = await Store.findByPk(storeId);
 
         if (!store) {
-            return res.status(404).json({
-                status: "error",
-                message: "Store not found"
-            });
+            next(new ApiError("Store not found", 400));
+        return;
         }
 
         store = await store.update({
@@ -93,17 +117,16 @@ const updateStore = async (req, res) => {
         });
 
         res.status(200).json({
-            status: "success",
+            status: "Success",
+            message : "Store Successfully Updated",
+            requestAt : req.requestTime,
             data: {
-                store
+                updatedStore : store
             }
         });
     } catch (err) {
-        console.error(err.message);
-        res.status(500).json({
-            status: "error",
-            message: "Failed to update store"
-        });
+        next(new ApiError(err.message, 400));
+        return;
     }
 };
 
@@ -114,24 +137,20 @@ const deleteStore = async (req, res) => {
         const store = await Store.findByPk(storeId);
 
         if (!store) {
-            return res.status(404).json({
-                status: "error",
-                message: "Store not found"
-            });
+            next(new ApiError("Store not found", 400));
+        return;
         }
 
         await store.destroy();
 
         res.status(200).json({
-            status: "success",
-            message: "Store deleted successfully"
+            status: "Success",
+            message: "Store deleted successfully",
+            requestAt: req.requestTime
         });
     } catch (err) {
-        console.error(err.message);
-        res.status(500).json({
-            status: "error",
-            message: "Failed to delete Store"
-        });
+        next(new ApiError(err.message, 400));
+        return;
     }
 };
 
