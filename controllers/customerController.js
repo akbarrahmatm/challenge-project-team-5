@@ -1,5 +1,5 @@
 const { Customer } = require("../models");
-const ApiError = require("../utils/ApiError")
+const ApiError = require("../utils/ApiError");
 
 const findCustomers = async (req, res, next) => {
   try {
@@ -150,7 +150,7 @@ const deleteCustomer = async (req, res, next) => {
 };
 
 const createCustomer = async (req, res, next) => {
-  const { name, address, email, phoneNumber } = req.body
+  const { name, address, email, phoneNumber } = req.body;
 
   try {
     const newCustomer = await Customer.create({
@@ -176,5 +176,5 @@ module.exports = {
   findCustomerById,
   updateCustomer,
   deleteCustomer,
-  createCustomer
+  createCustomer,
 };
