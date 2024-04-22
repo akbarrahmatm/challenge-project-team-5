@@ -3,11 +3,47 @@ const ApiError = require("../utils/ApiError")
 
 const findCustomers = async (req, res, next) => {
   try {
-    const customers = await Customer.findAll();
+    const { CustomerName, createdBy, manufacture, type, page, limit } = req.query;
+
+    const condition = {};
+
+    // Filter by carName
+    if (CustomerName) condition.model = { [Op.iLike]: `%${CustomerName}%` };
+
+    // Filter by createdBy
+    if (createdBy) condition.createdBy = createdBy;
+
+    // Filter by manufacture
+    if (manufacture) condition.manufacture = { [Op.iLike]: `${manufacture}%` };
+
+    // Filter by type
+    if (type) condition.type = { [Op.iLike]: `%${type}%` };
+
+    const pageNum = parseInt(page) || 1;
+    const pageSize = parseInt(limit) || 10;
+    const offset = (pageNum - 1) * pageSize;
+
+    const totalCount = await Customer.count({ where: condition });
+    const customers = await Customer.findAll({
+      where: condition,
+      limit: pageSize,
+      offset: offset,
+    });
+
+    const totalPages = Math.ceil(totalCount / pageSize);
+    
     res.status(200).json({
       status: "Success",
+      message: "Customers succesfully retrieved",
+      requestAt: req.requestTime,
       data: {
         customers,
+        pagination: {
+          totalData: totalCount,
+          totalPages,
+          pageNum,
+          pageSize,
+        },
       },
     });
   } catch (err) {
@@ -17,16 +53,23 @@ const findCustomers = async (req, res, next) => {
 
 const findCustomerById = async (req, res, next) => {
   try {
-    const customers = await Customer.findOne({
+    const id = req.params.id;
+    const customer = await Customer.findOne({
       where: {
-        id: req.params.id,
+        id
       },
     });
 
+    if (!customer) {
+      return next(new ApiError(`Customer with id '${id}' is not found`, 404));
+    }
+
     res.status(200).json({
       status: "Success",
+      message: "Customers succesfully retrieved",
+      requestAt: req.requestTime,
       data: {
-        customers,
+        customer,
       },
     });
   } catch (err) {
@@ -37,6 +80,15 @@ const findCustomerById = async (req, res, next) => {
 const updateCustomer = async (req, res, next) => {
   const { name, address, email, phoneNumber } = req.body;
   try {
+    const id = req.params.id;
+    const customer = await Customer.findOne({
+      where: {
+        id,
+      },
+    });
+    if (!customer) {
+      return next(new ApiError(`Customer with id '${id}' is not found`, 404));
+    }
     await Customer.update(
       {
         name,
@@ -46,14 +98,23 @@ const updateCustomer = async (req, res, next) => {
       },
       {
         where: {
-          id: req.params.id,
+          id
         },
       }
     );
+    const updatedCustomer = await Customer.findOne({
+      where: {
+        id,
+      },
+    });
 
     res.status(200).json({
       status: "Success",
-      message: "sukses update customer",
+      message: "Customers succesfully Update",
+      requestAt: req.requestTime,
+      data:{
+        updatedCustomer
+      }
     });
   } catch (err) {
     next(new ApiError(err.message, 400));
@@ -62,25 +123,26 @@ const updateCustomer = async (req, res, next) => {
 
 const deleteCustomer = async (req, res, next) => {
   try {
+    const id = req.params.id;
     const customers = await Customer.findOne({
       where: {
-        id: req.params.id,
+        id
       },
     });
 
     if (!customers) {
-      next(new ApiError("Customer id tersebut gak ada", 404));
+      next(new ApiError(`Customer with id '${id}' is not found`, 404));
     }
-
     await customers.destroy({
       where: {
-        id: req.params.id,
+        id
       },
     });
 
     res.status(200).json({
       status: "Success",
-      message: "sukses delete customer",
+      message: `Customer with id '${customers.id}' is successfully deleted`,
+      requestAt: req.requestTime,
     });
   } catch (err) {
     next(new ApiError(err.message, 400));
