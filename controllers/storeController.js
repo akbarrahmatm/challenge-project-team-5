@@ -34,15 +34,13 @@ const getStoreById = async (req, res) => {
         const store = await Store.findByPk(storeId);
 
         if (!store) { 
-            return res.status(404).json({
-                status: "Error",
-                message: "Store not found"
-            });
+            next(new ApiError("Store not found", 400));
+        return;
         }
 
         res.status(200).json({
             status: "Success",
-            message : `Car with id '${id}' is successfully retrieved`,
+            message : `Store with id '${id}' is successfully retrieved`,
             requestAt : req.requestTime,
 
             data: {
@@ -109,10 +107,8 @@ const updateStore = async (req, res) => {
         let store = await Store.findByPk(storeId);
 
         if (!store) {
-            return res.status(404).json({
-                status: "Error",
-                message: "Store not found"
-            });
+            next(new ApiError("Store not found", 400));
+        return;
         }
 
         store = await store.update({
@@ -141,10 +137,8 @@ const deleteStore = async (req, res) => {
         const store = await Store.findByPk(storeId);
 
         if (!store) {
-            return res.status(404).json({
-                status: "Error",
-                message: "Store not found"
-            });
+            next(new ApiError("Store not found", 400));
+        return;
         }
 
         await store.destroy();
