@@ -3,15 +3,47 @@ const ApiError = require("../utils/ApiError")
 
 const findBookings = async (req, res, next) => {
   try {
-    const bookings = await Booking.findAll();
+    const { BookingName, createdBy, manufacture, type, page, limit } = req.query;
+
+    const condition = {};
+
+    if (BookingName) condition.model = { [Op.iLike]: `%${BookingName}%` };
+
+    if (createdBy) condition.createdBy = createdBy;
+
+    if (manufacture) condition.manufacture = { [Op.iLike]: `${manufacture}%` };
+
+    if (type) condition.type = { [Op.iLike]: `%${type}%` };
+
+    const pageNum = parseInt(page) || 1;
+    const pageSize = parseInt(limit) || 10;
+    const offset = (pageNum - 1) * pageSize;
+
+    const totalCount = await Booking.count({ where: condition });
+    const bookings = await Booking.findAll({
+      where: condition,
+      limit: pageSize,
+      offset: offset,
+    });
+
+    const totalPages = Math.ceil(totalCount / pageSize);
+    
     res.status(200).json({
       status: "Success",
+      message: "Booking succesfully retrieved",
+      requestAt: req.requestTime,
       data: {
         bookings,
+        pagination: {
+          totalData: totalCount,
+          totalPages,
+          pageNum,
+          pageSize,
+        },
       },
     });
   } catch (err) {
-    next(new ApiError(err.message, 400));
+    return next(new ApiError(err.message, 400));
   }
 };
 
@@ -26,7 +58,7 @@ const findBookingById = async (req, res, next) => {
     res.status(200).json({
       status: "Success",
       data: {
-        bookingss,
+        bookings,
       },
     });
   } catch (err) {
@@ -59,6 +91,19 @@ const createBooking = async (req, res, next) => {
 const updateBooking = async (req, res, next) => {
   const { customerId, packageId, bookingDate, numberOfPeople } = req.body;
   try {
+
+    const booking = await Booking.findOne({
+      where: {
+        id,
+      },
+    });
+
+
+    if (!booking) {
+      return next(new ApiError(`Data with id '${id}' is not found`, 404));
+    }
+
+
     await Booking.update(
       {
         customerId,
@@ -72,6 +117,7 @@ const updateBooking = async (req, res, next) => {
         },
       }
     );
+
 
     res.status(200).json({
       status: "Success",
@@ -91,7 +137,7 @@ const deleteBooking = async (req, res, next) => {
     });
 
     if (!bookings) {
-      next(new ApiError("Booking id tersebut gak ada", 404));
+      next(new ApiError(`Data with id '${id}' is not found`, 404));
     }
 
     await bookings.destroy({
@@ -102,7 +148,7 @@ const deleteBooking = async (req, res, next) => {
 
     res.status(200).json({
       status: "Success",
-      message: "succes delete booking",
+      message: "Succes Delete Booking",
     });
   } catch (err) {
     next(new ApiError(err.message, 400));
