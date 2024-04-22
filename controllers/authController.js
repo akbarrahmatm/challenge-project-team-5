@@ -1,5 +1,3 @@
-require("dotenv").config();
-
 const { User } = require("../models");
 const ApiError = require("../utils/ApiError");
 const jwt = require("jsonwebtoken");
@@ -19,13 +17,12 @@ const register = async (req, res, next) => {
       !role ||
       !storeId
     ) {
-      next(
+      return next(
         new ApiError(
           "name, username, password, confirmPassword, role, storeId field is required",
           400
         )
       );
-      return;
     }
 
     // Check unique username
@@ -35,34 +32,32 @@ const register = async (req, res, next) => {
       },
     });
     if (isUsernameExist) {
-      next(new ApiError("Username is already taken", 400));
-      return;
+      return next(new ApiError("Username is already taken", 400));
     }
 
     // Check password length
     if (password.length <= 8) {
-      next(new ApiError("Password should be 8 character or more", 400));
-      return;
+      return next(new ApiError("Password should be 8 character or more", 400));
     }
 
     // Check password & passwordConfirm
     if (password !== confirmPassword) {
-      next(new ApiError("password & confirmPassword does not match", 400));
-      return;
+      return next(
+        new ApiError("password & confirmPassword does not match", 400)
+      );
     }
 
-    // Check role
+    // Check req.body role
     const roles = ["Manager", "Staff"];
     if (!roles.includes(role)) {
-      next(new ApiError("Role should be Manager or staff", 400));
-      return;
+      return next(new ApiError("Role should be Manager or staff", 400));
     }
 
     // Encrypt
     const saltRounds = 10;
     const hashedPassword = bcrypt.hashSync(password, saltRounds);
 
-    const newUser = await User.create({
+    await User.create({
       name,
       username,
       password: hashedPassword,
@@ -72,13 +67,11 @@ const register = async (req, res, next) => {
 
     res.status(201).json({
       status: "Success",
-      data: {
-        ...newUser.dataValues,
-      },
+      message: "User successfully registered",
+      requestAt: req.requestTime,
     });
   } catch (err) {
-    next(new ApiError(err.message, 400));
-    return;
+    return next(new ApiError(err.message, 400));
   }
 };
 
@@ -109,16 +102,15 @@ const login = async (req, res, next) => {
 
       res.status(200).json({
         status: "Success",
-        message: "Token successfully created",
-        data: token,
+        message: "User successfully logged in",
+        requestAt: req.requestTime,
+        data: { token },
       });
     } else {
-      next(new ApiError(" Wrong Email Or Password", 400));
-      return;
+      return next(new ApiError("Wrong Email Or Password", 400));
     }
   } catch (err) {
-    next(new ApiError(err.message, 400));
-    return;
+    return next(new ApiError(err.message, 400));
   }
 };
 
@@ -126,13 +118,14 @@ const checkUser = async (req, res, next) => {
   try {
     res.status(200).json({
       status: "Success",
+      message: "User data successfully retrieved",
+      requestAt: req.requestTime,
       data: {
         user: req.user,
       },
     });
   } catch (err) {
-    next(new ApiError(err.message, 400));
-    return;
+    return next(new ApiError(err.message, 400));
   }
 };
 
