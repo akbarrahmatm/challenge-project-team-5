@@ -1,5 +1,5 @@
 const router = require("express").Router();
-const tourRouter = require("./TourRoutes");
+const tourRouter = require("./tourPackageRoutes");
 
 /*
     Import other routers here, for example:
