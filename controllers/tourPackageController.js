@@ -10,7 +10,6 @@ const ImageKit = require('../utils/imageKit')
 
 const uploadImage = async (file) => {
   try {
-    console.log("In upload image")
     const split = file.originalname.split(".");
     const extension = split[split.length - 1];
 
@@ -20,19 +19,16 @@ const uploadImage = async (file) => {
       fileName: `IMG-${Date.now()}.${extension}`,
       folder: 'coba'
     });
-
-
     if (!uploadedImage) {
       return next(new ApiError("server gagal mengupload gambar", 500));
     }
-
     return uploadedImage.url;
   } catch (err) {
     return err.message;
   }
 };
 
-const uploadGambar = async (req, res, next) => {
+const createTourPackage = async (req, res, next) => {
   const { packageName, price, description, destination, duration } = req.body;
 
   try {
@@ -45,8 +41,6 @@ const uploadGambar = async (req, res, next) => {
         message: 'No file uploaded',
       });
     }
-    console.log("Name asli", file.originalname);
-
     let image;
     if (file) {
       image = await uploadImage(file);
@@ -72,29 +66,6 @@ const uploadGambar = async (req, res, next) => {
       status: "error",
       message: error.message
     });
-    console.log(error);
-  }
-}
-
-const uploadPoto = (req, res) => {
-  console.log("masuk image upload")
-  console.log(req.body)
-  if (req.file) {
-    imagekit.upload({
-      file: req.file,
-      fileName: "test.jpg",
-      folder: 'user_avatars'
-    }, function (err, response) {
-      if (err) {
-
-        console.log(err);
-        return res.status(500).json({
-          status: "failed",
-          message: "An error occured during file upload. Please try again."
-        })
-      }
-      res.json({ status: "success", message: "Successfully uploaded files" });
-    })
   }
 }
 const findTourPackageById = async (req, res, next) => {
@@ -167,7 +138,7 @@ const findTourPackages = async (req, res, next) => {
     next(new ApiError(error.message, 400));
   }
 };
-const createTourPackage = async (req, res, next) => {
+const oldCreateTourPackage = async (req, res, next) => {
   const { packageName, image, price, description, destination, duration, storeId } = req.body;
 
   try {
@@ -247,7 +218,7 @@ const deleteTourPackage = async (req, res, next) => {
   }
 }
 
-module.exports = { createTourPackage, findTourPackageById, findTourPackages, updateTourPackage, deleteTourPackage, uploadGambar, uploadPoto }
+module.exports = { createTourPackage, findTourPackageById, findTourPackages, updateTourPackage, deleteTourPackage, }
 
 
 
