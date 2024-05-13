@@ -35,7 +35,7 @@ const createTourPackage = async (req, res, next) => {
     const storeId = 1;
     const file = req.file;
 
-    if (!packageName || !price || !description || !destination || !duration) {
+    if (!file || !packageName || !price || !description || !destination || !duration) {
       return res.status(400).json({
         status: 'error',
         message: 'No file uploaded',
@@ -165,7 +165,6 @@ const oldCreateTourPackage = async (req, res, next) => {
 const updateTourPackage = async (req, res, next) => {
   const { packageName, image, price, description, destination, duration, storeId } = req.body;
   const tourId = req.params.id;
-  console.log("Masuk updateTourPackage")
   try {
     if (!tourId) {
       next(new ApiError("Please provide a tour ID", 404));
